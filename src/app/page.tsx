@@ -1,78 +1,145 @@
 // app/page.tsx (App Router)
 'use client';
-
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+const isValidIndianNumber = (num: string) => /^[6-9]\d{9}$/.test(num);
 
 export default function LandingPage() {
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('backend');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    category: 'backend',
+    phoneNumber: '',
+    otp: '',
+  });
   const [userId, setUserId] = useState('');
   const [step, setStep] = useState<'form' | 'otp' | 'success'>('form');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [sendingJobs, setSendingJobs] = useState(false);
+  const [loading, setLoading] = useState({
+    submit: false,
+    verify: false,
+    jobs: false,
+  });
   const [message, setMessage] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async () => {
-    if (!name || !phoneNumber) {
-      alert('Please fill all fields');
+    if (!formData.name || !formData.phoneNumber) {
+      setMessage('❌ Please fill all fields');
       return;
     }
 
-    setIsSubmitting(true);
+    if (!isValidIndianNumber(formData.phoneNumber)) {
+      setMessage('❌ Invalid Indian phone number');
+      return;
+    }
+
+    setLoading(prev => ({ ...prev, submit: true }));
+    setMessage('');
+
     try {
       const res = await fetch('/api/user/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
-          phoneNumber: '+91' + phoneNumber.trim(),
-          categories: [category],
+          name: formData.name,
+          phoneNumber: `+91${formData.phoneNumber}`,
+          category: formData.category,
         }),
       });
 
       const data = await res.json();
-
-      if (data.success) {
-        setUserId(data.userId);
-        setStep('otp');
-      } else {
-        alert('Failed to register user');
+      
+      if (!res.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
-    } catch (err) {
-      alert('An unexpected error occurred.');
+
+      setUserId(data.userId);
+      setStep('otp');
+      setMessage('✅ OTP sent successfully!');
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
     } finally {
-      setIsSubmitting(false);
+      setLoading(prev => ({ ...prev, submit: false }));
     }
   };
 
   const handleVerify = async () => {
-    if (!otp) {
-      alert('Please enter the OTP');
+    if (!formData.otp) {
+      setMessage('❌ Please enter the OTP');
       return;
     }
 
-    setIsVerifying(true);
+    setLoading(prev => ({ ...prev, verify: true }));
+    setMessage('');
+
     try {
       const res = await fetch('/api/user/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, otp }),
+        body: JSON.stringify({ 
+          userId, 
+          otp: formData.otp 
+        }),
       });
 
       const data = await res.json();
-
+      
       if (data.success) {
         setStep('success');
+        setMessage('✅ Verification successful!');
       } else {
-        alert('Invalid OTP');
+        throw new Error(data.message || 'Invalid OTP');
       }
-    } catch (err) {
-      alert('An unexpected error occurred.');
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
     } finally {
-      setIsVerifying(false);
+      setLoading(prev => ({ ...prev, verify: false }));
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(prev => ({ ...prev, submit: true }));
+    setMessage('');
+    
+    try {
+      const res = await fetch('/api/user/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (!res.ok) throw new Error('Failed to resend OTP');
+      
+      setMessage('✅ New OTP sent successfully');
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
+    } finally {
+      setLoading(prev => ({ ...prev, submit: false }));
+    }
+  };
+
+  const handleSendJobs = async () => {
+    setLoading(prev => ({ ...prev, jobs: true }));
+    setMessage('');
+
+    try {
+      const res = await fetch('/api/user/send-jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      
+      if (res.ok) {
+        setMessage('✅ Jobs sent via WhatsApp!');
+      } else {
+        throw new Error(data.error || 'Failed to send jobs');
+      }
+    } catch (err: any) {
+      setMessage(`❌ ${err.message}`);
+    } finally {
+      setLoading(prev => ({ ...prev, jobs: false }));
     }
   };
 
@@ -82,35 +149,42 @@ export default function LandingPage() {
         <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
           <h1 className="text-xl font-bold mb-4">Register</h1>
           <input
-            className="w-full border p-2 mb-3"
+            className="w-full border p-2 mb-3 rounded"
             placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
           />
           <select
-            className="w-full border p-2 mb-3"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border p-2 mb-3 rounded"
+            value={formData.category}
+            onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
           >
             <option value="backend">Backend</option>
             <option value="frontend">Frontend</option>
           </select>
           <div className="flex mb-3">
-            <span className="inline-flex items-center px-3 border border-r-0 bg-gray-200">+91</span>
+            <span className="inline-flex items-center px-3 border border-r-0 bg-gray-200 rounded-l">
+              +91
+            </span>
             <input
               type="tel"
-              className="w-full border p-2"
+              className="w-full border p-2 rounded-r"
               placeholder="Phone Number"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={formData.phoneNumber}
+              onChange={(e) => setFormData(prev => ({ 
+                ...prev, 
+                phoneNumber: e.target.value.replace(/\D/g, '')
+              }))}
+              maxLength={10}
             />
           </div>
+          {message && <p className="mb-3 text-sm text-red-600">{message}</p>}
           <button
-            className="w-full bg-blue-500 text-white py-2 rounded disabled:opacity-50"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:opacity-50"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={loading.submit}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit'}
+            {loading.submit ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       )}
@@ -119,18 +193,32 @@ export default function LandingPage() {
         <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md">
           <h1 className="text-xl font-bold mb-4">Enter OTP</h1>
           <input
-            className="w-full border p-2 mb-3"
+            className="w-full border p-2 mb-3 rounded"
             placeholder="OTP"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            value={formData.otp}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              otp: e.target.value.replace(/\D/g, '')
+            }))}
+            maxLength={6}
           />
-          <button
-            className="w-full bg-green-500 text-white py-2 rounded disabled:opacity-50"
-            onClick={handleVerify}
-            disabled={isVerifying}
-          >
-            {isVerifying ? 'Verifying...' : 'Verify'}
-          </button>
+          {message && <p className="mb-3 text-sm text-red-600">{message}</p>}
+          <div className="flex gap-2">
+            <button
+              className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 disabled:opacity-50"
+              onClick={handleVerify}
+              disabled={loading.verify}
+            >
+              {loading.verify ? 'Verifying...' : 'Verify'}
+            </button>
+            <button
+              className="w-1/3 bg-gray-200 text-gray-700 py-2 rounded hover:bg-gray-300 disabled:opacity-50"
+              onClick={handleResendOtp}
+              disabled={loading.submit}
+            >
+              Resend
+            </button>
+          </div>
         </div>
       )}
 
@@ -138,28 +226,11 @@ export default function LandingPage() {
         <div className="bg-green-100 p-6 rounded-xl shadow-md w-full max-w-md text-center">
           <h1 className="text-xl font-bold mb-4 text-green-700">User Verified ✅</h1>
           <button
-            onClick={async () => {
-              setSendingJobs(true);
-              setMessage('');
-              try {
-                const res = await fetch('/api/user/send-jobs', { method: 'POST' });
-                const data = await res.json();
-
-                if (res.ok) {
-                  setMessage('✅ Jobs sent via WhatsApp!');
-                } else {
-                  setMessage(`❌ ${data.error}`);
-                }
-              } catch (err: any) {
-                setMessage(`❌ Unexpected error: ${err.message}`);
-              } finally {
-                setSendingJobs(false);
-              }
-            }}
-            disabled={sendingJobs}
-            className="bg-purple-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            onClick={handleSendJobs}
+            disabled={loading.jobs}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50"
           >
-            {sendingJobs ? 'Sending...' : 'Send Jobs'}
+            {loading.jobs ? 'Sending...' : 'Send Jobs'}
           </button>
           {message && <p className="mt-4 text-sm text-gray-800">{message}</p>}
         </div>
