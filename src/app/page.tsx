@@ -123,7 +123,7 @@ export default function LandingPage() {
     setMessage('');
 
     try {
-      const res = await fetch('/api/user/send-jobs', {
+      const res = await fetch('/api/send-jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),

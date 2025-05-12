@@ -17,7 +17,7 @@ export const JobMessageFormatter = {
     
     const footer = `\nPowered by JobAlerts Pro`;
     
-    return this.truncate(header + jobList + footer, 4096);
+    return JobMessageFormatter.truncate(header + jobList + footer, 4096); 
   },
 
   truncate: (text: string, maxLength: number) => {
