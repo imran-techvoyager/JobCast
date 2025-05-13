@@ -6,7 +6,6 @@ import twilio from 'twilio';
 const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!);
 
 export async function POST(req: Request) {
-  console.log("hii");
   const { userId, otp } = await req.json();
 
   await mongoose.connect(process.env.DATABASE_URL!);
