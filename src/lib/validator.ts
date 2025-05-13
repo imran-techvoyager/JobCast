@@ -6,7 +6,6 @@ export const validateCategory = (category: string): category is 'frontend' | 'ba
 
 export const validateRequest = async (req: Request) => {
   if (!req.headers.get('content-type')?.includes('application/json')) {
-    console.log("hii");
     return { valid: false, error: 'Invalid content type' };
   }
   
