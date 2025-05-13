@@ -8,7 +8,6 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_T
 
 export async function POST(req: Request) {
   try {
-    console.log("hii");
     const { userId } = await req.json();
 
     const user = await userModel.findById(userId);
