@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { userModel } from '@/lib/db/models/user';
-import { scrapeJobs } from '@/lib/scraper/naukri';
+import { scrapeJobs } from '@/lib/scraper/scrape';
 import { MessageFormatter } from '@/lib/messaging/formatter';
 import twilio from 'twilio';
 
