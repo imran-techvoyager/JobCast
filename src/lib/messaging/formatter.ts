@@ -10,10 +10,9 @@ export class MessageFormatter {
                       `🏢 ${job.company}\n📍 ${job.location}\n🔗 ${job.link}\n\n`;
 
       // Predict next message length with job and footer
-      console.log("hii");
       const projectedLength = message.length + jobText.length + "Powered by JobCast".length;
 
-      if (projectedLength > 1600) break; // ⛔ Stop if it will exceed limit
+      if (projectedLength > 1600) break; // Stop if it will exceed limit
 
       message += jobText;
       jobCount++;
