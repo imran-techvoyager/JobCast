@@ -11,7 +11,6 @@ const JOB_PORTALS = {
 
 export const scrapeJobs = async (category: keyof typeof JOB_PORTALS): Promise<Job[]> => {
   try {
-    console.log("hii");
     const { data } = await axios.get(JOB_PORTALS[category], {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
