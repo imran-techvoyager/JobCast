@@ -9,7 +9,6 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_T
 export async function POST(req: Request) {
   try {
     // Validate request format
-    console.log("hii");
     if (!req.headers.get('content-type')?.includes('application/json')) {
       return NextResponse.json(
         { success: false, message: 'Invalid content type' },
