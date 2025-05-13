@@ -21,7 +21,5 @@ const userSchema = new mongoose.Schema<User>({
     createdAt: { type: Date, default: Date.now }
 });
 
-console.log("hii");
-
 export type UserDocument = mongoose.HydratedDocument<User>;
 export const userModel = mongoose.models.User || mongoose.model<User>('User', userSchema);

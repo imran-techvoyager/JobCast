@@ -10,23 +10,18 @@ export async function POST(req: Request) {
   try {
     console.log("hii");
     const { userId } = await req.json();
-    console.log('🔎 Received userId:', userId);
 
     const user = await userModel.findById(userId);
     if (!user) {
-      console.error('❌ User not found');
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     if (!user.isVerified) {
-      console.error('❌ User not verified');
       return NextResponse.json({ error: 'User not verified' }, { status: 401 });
     }
 
-    console.log(`🔎 Scraping jobs for category: ${user.category}`);
     const jobs = await scrapeJobs(user.category as 'frontend' | 'backend');
 
-    console.log(`✅ Found ${jobs.length} jobs`);
     if (jobs.length === 0) {
       return NextResponse.json({ 
         error: 'Temporarily unavailable - Please try again later' 
@@ -34,7 +29,6 @@ export async function POST(req: Request) {
     }
 
     const message = MessageFormatter.createMessage(user.name, user.category, jobs);
-    console.log('📩 Generated message for WhatsApp:', message);
 
     const msgResponse = await client.messages.create({
       body: message,
@@ -42,7 +36,7 @@ export async function POST(req: Request) {
       to: `whatsapp:${user.phoneNumber}`
     });
 
-    console.log('✅ Twilio response:', msgResponse.sid);
+    console.log('Twilio response:', msgResponse.sid);
 
     await userModel.findByIdAndUpdate(userId, {
       lastJobSend: new Date(),
@@ -52,7 +46,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, jobsSent: jobs.length });
 
   } catch (error: any) {
-    console.error('❌ Job send error:', error);
+    console.error('Job send error:', error);
     return NextResponse.json({ 
       error: error.message?.includes('ECONNREFUSED') 
         ? 'Service temporarily unavailable' 
