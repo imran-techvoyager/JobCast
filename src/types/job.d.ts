@@ -4,4 +4,3 @@ export type Job = {
   location: string;
   link: string;
 };
-console.log("hii");
