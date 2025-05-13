@@ -42,7 +42,7 @@ export const scrapeJobs = async (category: keyof typeof JOB_PORTALS): Promise<Jo
     console.log(`✅ Scraped ${jobs.length} jobs from RemoteOK for ${category}`);
     return jobs.slice(0, 10); // return top 10
   } catch (error) {
-    console.error('❌ Scraping failed:', error);
+    console.error('Scraping failed:', error);
     return [];
   }
 };
