@@ -1,30 +1,19 @@
-// lib/validators.ts
-import { NextRequest } from "next/server";
-
-// Phone number validation
 export const validatePhoneNumber = (phone: string) => 
   /^\+91[6-9]\d{9}$/.test(phone);
 
-// Request validation
-export const validateRequest = async (req: NextRequest) => {
-  // Check content type
+export const validateCategory = (category: string): category is 'frontend' | 'backend' => 
+  ['frontend', 'backend'].includes(category);
+
+export const validateRequest = async (req: Request) => {
   if (!req.headers.get('content-type')?.includes('application/json')) {
-    return { success: false, error: "Invalid content type" };
+    console.log("hii");
+    return { valid: false, error: 'Invalid content type' };
   }
-
+  
   try {
-    // Verify request body exists
-    const body = await req.json();
-    if (!body || typeof body !== 'object') {
-      return { success: false, error: "Invalid request body" };
-    }
-
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: "Malformed JSON request" };
+    await req.json();
+    return { valid: true };
+  } catch {
+    return { valid: false, error: 'Invalid JSON' };
   }
 };
-
-// User validation
-export const validateUserCategory = (category: string) => 
-  ["frontend", "backend"].includes(category);

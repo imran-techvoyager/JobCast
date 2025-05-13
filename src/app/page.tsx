@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 const isValidIndianNumber = (num: string) => /^[6-9]\d{9}$/.test(num);
 
 export default function LandingPage() {
+  console.log("hii");
   const [formData, setFormData] = useState({
     name: '',
     category: 'backend',

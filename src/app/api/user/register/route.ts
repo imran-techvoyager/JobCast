@@ -2,19 +2,14 @@ import { NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import { userModel } from '@/lib/db/models/user';
 import twilio from 'twilio';
-import {rateLimit} from '@/lib/rate-limit';
 import { validatePhoneNumber } from '@/lib/validator';
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!);
-const limiter = rateLimit({ 
-  points: 5, 
-  duration: 60, 
-  blockDuration: 300 
-});
 
 export async function POST(req: Request) {
   try {
     // Validate request format
+    console.log("hii");
     if (!req.headers.get('content-type')?.includes('application/json')) {
       return NextResponse.json(
         { success: false, message: 'Invalid content type' },
@@ -30,15 +25,6 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
-      );
-    }
-
-    // Rate limiting
-    const { success: limitSuccess } = await limiter.check(1, phoneNumber);
-    if (!limitSuccess) {
-      return NextResponse.json(
-        { success: false, message: 'Too many requests' },
-        { status: 429 }
       );
     }
 
