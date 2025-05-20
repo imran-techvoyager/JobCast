@@ -2,13 +2,20 @@ import { NextResponse } from 'next/server';
 import { userModel } from '@/lib/db/models/user';
 import { scrapeJobs } from '@/lib/scraper/scrape';
 import { MessageFormatter } from '@/lib/messaging/formatter';
+import mongoose from 'mongoose';
 import twilio from 'twilio';
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!);
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await req.json();
+    const { userId, category } = await req.json();
+
+    await mongoose.connect(process.env.DATABASE_URL!);
+
+    await userModel.findByIdAndUpdate(userId, {
+       category: category
+    });
 
     const user = await userModel.findById(userId);
     if (!user) {

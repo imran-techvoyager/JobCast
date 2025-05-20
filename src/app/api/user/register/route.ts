@@ -17,10 +17,10 @@ export async function POST(req: Request) {
     }
 
     await mongoose.connect(process.env.DATABASE_URL!);
-    const { name, phoneNumber, category } = await req.json();
+    const { name, phoneNumber } = await req.json();
 
     // Validate input data
-    if (!name || !phoneNumber || !category) {
+    if (!name || !phoneNumber ) {
       return NextResponse.json(
         { success: false, message: 'Missing required fields' },
         { status: 400 }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
           success: false, 
           message: existingUser.isVerified 
             ? 'Phone number already registered' 
-            : 'Verification already in progress'
+            : 'Sorry you cant be registered (Tilio) - Please contact support'
         },
         { status: 409 }
       );
@@ -53,7 +53,6 @@ export async function POST(req: Request) {
     const user = await userModel.create({ 
       name: name.trim(),
       phoneNumber,
-      category,
       isVerified: false
     });
 

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 interface User {
     name: string;
     phoneNumber: string;
-    category: 'frontend' | 'backend';
+    category?: 'frontend' | 'backend';
     isVerified: boolean;
     lastJobSend?: Date;
     jobsSent?: number;
@@ -14,7 +14,7 @@ interface User {
 const userSchema = new mongoose.Schema<User>({
     name: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    category: { type: String, required: true, enum: ['frontend', 'backend'] },
+    category: { type: String, enum: ['frontend', 'backend'] },
     isVerified: { type: Boolean, default: false },
     lastJobSend: { type: Date },
     jobsSent: { type: Number },

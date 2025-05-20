@@ -46,7 +46,6 @@ export default function Register() {
         body: JSON.stringify({
           name: formData.name,
           phoneNumber: `+91${formData.phoneNumber}`,
-          category: formData.category,
         }),
       });
 
@@ -60,7 +59,7 @@ export default function Register() {
       setStep('otp');
       setMessage('OTP sent successfully!');
     } catch (err: any) {
-      setMessage(`Error: ${err.message}`);
+      setMessage(`${err.message}`);
     } finally {
       setLoading(prev => ({ ...prev, submit: false }));
     }
@@ -89,7 +88,7 @@ export default function Register() {
       
       if (data.success) {
         setStep('success');
-        setMessage('Verification successful!');
+        setMessage('');
       } else {
         throw new Error(data.message || 'Invalid OTP');
       }
@@ -129,7 +128,10 @@ export default function Register() {
       const res = await fetch('/api/send-jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({
+           userId,
+           category: formData.category,
+          }),
       });
 
       const data = await res.json();
@@ -167,12 +169,12 @@ export default function Register() {
             
             <Card className="shadow-md border-none">
               <CardContent className="p-6">
-                <div className="text-center mb-8">
-                  <h1 className="text-5xl font-bold mb-2 tracking-widest bg-gradient-to-r from-gray-900 via-primary to-gray-900 bg-clip-text text-transparent">JOBCAST</h1>
-                  <p className="text-gray-600">Fill it. Submit it. Land your dream job via WhatsApp.</p>
+                <div className="text-center mb-4">
+                  <h1 className="text-5xl font-bold mb-4 z-10 bg-gradient-to-r from-gray-900 via-primary to-gray-900 bg-clip-text text-transparent">Get Registered</h1>
+                  <p className="text-gray-600">Join JobCast and revolutionize your hiring process.</p>
                 </div>
                 
-                <div className="space-y-6">
+                <div className="space-y-6 mt-0">
                   <div>
                     <p className="font-medium mb-2">Name</p>
                     <Input
@@ -181,17 +183,6 @@ export default function Register() {
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       className="rounded-full"
                     />
-                  </div>
-                  
-                  <div className="rounded-full">
-                    <select
-                      className="w-full border p-2 mb-3 rounded-full"
-                      value={formData.category}
-                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                    >
-                      <option value="backend">Backend</option>
-                      <option value="frontend">Frontend</option>
-                    </select>
                   </div>
                   
                   <div>
@@ -266,8 +257,8 @@ export default function Register() {
         )}
 
         {step === 'success' && (
-          <Card className="bg-green-100 border-none">
-            <CardContent className="p-6 text-center">
+          <Card className="shadow-md border-none">
+            <CardContent className="p-6">
                 <div className="w-full mb-6 flex items-center">
               <button 
                 onClick={goBack} 
@@ -277,15 +268,34 @@ export default function Register() {
                 <span>Back to Home</span>
               </button>
             </div>
+            <div className='text-center mb-5'>
               <h1 className="text-xl font-bold mb-4 text-green-700">User Verified ✅</h1>
+              <p className="text-gray-600">Select a category to start receiving job updates.</p>
+              </div>
+              <div className='flex flex-col justify-start'>
+                    <p className="font-medium mb-2 ml-2">Category</p>
+                    <select
+                      className="w-full border p-2 mb-3 rounded-full"
+                      value={formData.category}
+                      onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                    >
+                      <option value="backend">Backend</option>
+                      <option value="frontend">Frontend</option>
+                    </select>
+                  </div>
+            <div className='flex justify-center items-center mt-2'>
               <Button
                 onClick={handleSendJobs}
                 disabled={loading.jobs}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-purple-600 hover:bg-purple-700 text-center"
               >
                 {loading.jobs ? 'Sending...' : 'Send Jobs'}
               </Button>
-              {message && <p className="mt-4 text-sm text-gray-800">{message}</p>}
+            </div>
+              <div className='flex justify-center items-center mt-2'>
+                {message && <p className="text-xl font-bold mt-4 text-green-700">{message}</p>}
+              </div>
+              
             </CardContent>
           </Card>
         )}
