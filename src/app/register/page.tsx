@@ -269,7 +269,7 @@ export default function Register() {
               </button>
             </div>
             <div className='text-center mb-5'>
-              <h1 className="text-xl font-bold mb-4 text-green-700">User Verified ✅</h1>
+              <h1 className="text-xl font-bold mb-4 text-green-700">Verification Successful ✅</h1>
               <p className="text-gray-600">Select a category to start receiving job updates.</p>
               </div>
               <div className='flex flex-col justify-start'>

@@ -5,8 +5,8 @@ import * as cheerio from 'cheerio';
 import { Job } from '@/types/job';
 
 const JOB_PORTALS = {
-  frontend: 'https://remoteok.com/remote-dev+frontend-jobs',
-  backend: 'https://remoteok.com/remote-dev+backend-jobs'
+  frontend: 'https://remoteok.com/remote-front-end-jobs',
+  backend: 'https://remoteok.com/remote-backend-jobs'
 } as const;
 
 export const scrapeJobs = async (category: keyof typeof JOB_PORTALS): Promise<Job[]> => {
